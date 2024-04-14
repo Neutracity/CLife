@@ -1,0 +1,9 @@
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
+Python/test.py
+C/build/Debug/test.o
+C/build/Debug/outDebug
+C/build/Debug/GOL.o
+C/test.sh
+C/GOL.sh
