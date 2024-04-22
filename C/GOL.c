@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define haut 50
-#define largeur 150
+#define haut 10
+#define largeur 16 
 
 void print_scr(int (*array)[largeur]){
     for(int i = 0;i<haut;i++){
@@ -33,15 +33,18 @@ void init_scr(int (*screen)[largeur]){
 }
 
 int voisin(int (*screen)[largeur],int x,int y){
-    int count = 0 ;
-    int limy = 1 ;
-    int limx = 1;
-    for(int i = y-1;i<=y+limy;i++){
-        for(int j = x-1;j<=x+limx;j++){
-            if(screen[i][j] == 1){
-                count++;
-                //printf("found");
-            }
+    int count = 0;
+    //int limy = 1;
+    //int limx = 1;
+    for(int i = y-1;i<=y+1;i++){
+        for(int j = x-1;j<=x+1;j++){
+            int nx = j;
+            int ny = i;
+            if(x >=largeur){nx = 0;}; // teleporte Droite -> Gauche
+            if(y >=haut){ny = 0;}; // teleporte Bas -> Haut
+            if(x<0){nx = largeur-1;}; // teleporte Gauche -> Droite Marche
+            if(y<0){ny = haut-1;}; // teleporte Haut -> Bas
+            if(screen[ny][nx] == 1){count++;}; // Incrémente si voisin
             //printf("i: %d , j : %d \n",i,j);
         }
     }
@@ -63,8 +66,8 @@ void change_value(int (*screen)[largeur],int x, int y){
 }
 
 void make_grid_voisin(int (*grid)[largeur],int (*grid_voisin)[largeur]){
-    for(int i = 1;i<haut-1;i++){
-        for(int j = 1;j<largeur-1;j++){
+    for(int i = 0;i<haut;i++){
+        for(int j = 0;j<largeur;j++){
             grid_voisin[i][j] = voisin(grid,j,i);
             /*printf("i: %d , j : %d \n",i,j);
             print_scr(grid_voisin);
@@ -105,6 +108,15 @@ void apply_rule(int (*grid)[largeur],int (*grid_voisin)[largeur]){
     }
 }
 
+void glidder(int x, int y,int (*grid)[largeur]){
+    change_value(grid,x,y);
+    change_value(grid,x,y+1);
+    change_value(grid,x,y+2);
+    change_value(grid,x+1,y+2);
+    change_value(grid,x+2,y+1);
+}
+
+
 int main(){
     time_t seconds;
     time(&seconds);
@@ -112,16 +124,16 @@ int main(){
     int screen[haut][largeur];
     init_scr(screen);
 
-    //change_value(screen,1,1);
-    //change_value(screen,3,2);
-    //change_value(screen,3,3);
-    //change_value(screen,3,4);
-    //change_value(screen,5,5);
-    //change_value(screen,6,6);
-    //change_value(screen,7,7);
+    // change_value(screen,10,4);
+    // change_value(screen,10,5);
+    // change_value(screen,10,6);
+    // change_value(screen,11,6);
+    // change_value(screen,12,5);
+    // change_value(screen,6,6);
+    // change_value(screen,7,7);
+    glidder(2,2,screen);
 
-
-    scramble(screen);
+    //scramble(screen);
     high_print_scr(screen);
     printf("\n");
     int grid_voisin[haut][largeur];
@@ -129,6 +141,7 @@ int main(){
     while(1==1){
         init_scr(grid_voisin);
         make_grid_voisin(screen,grid_voisin);
+        print_scr(grid_voisin);
         apply_rule(screen,grid_voisin);
         high_print_scr(screen);
         getchar();
