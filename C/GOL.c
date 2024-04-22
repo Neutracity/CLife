@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define haut 10
-#define largeur 16 
+#define haut 8
+#define largeur 30
 
 void print_scr(int (*array)[largeur]){
     for(int i = 0;i<haut;i++){
@@ -40,11 +40,11 @@ int voisin(int (*screen)[largeur],int x,int y){
         for(int j = x-1;j<=x+1;j++){
             int nx = j;
             int ny = i;
-            if(x >=largeur){nx = 0;}; // teleporte Droite -> Gauche Work
-            if(y >=haut-1){ny = 0;}; // teleporte Bas -> Haut
-            if(x<0){nx = largeur-1;}; // teleporte Gauche -> Droite  Work
-            if(y<0){ny = haut;}; // teleporte Haut -> Bas
-            if(screen[ny][nx] == 1){count++;}; // Incrémente si voisin
+            if(x >=largeur){nx = 0;ny = ny-3;} // teleporte Droite -> Gauche Work
+            else if(x<0){nx = largeur-1;ny = ny-3;}; // teleporte Gauche -> Droite  Work Mais descent 
+            if(y >=haut-1){ny = 0;} // teleporte Bas -> Haut
+            else if(y<0){ny = haut-1;}; // teleporte Haut -> Bas
+            if(screen[ny][nx] == 1){count++;}; // Incrémente valeur de la grile est vivante
             //printf("i: %d , j : %d \n",i,j);
         }
     }
@@ -115,7 +115,23 @@ void glidder(int x, int y,int (*grid)[largeur]){
     change_value(grid,x+1,y+2);
     change_value(grid,x+2,y+1);
 }
-
+/*
+ ####
+#   #
+    #
+#  #
+*/
+void lwss(int x, int y,int (*grid)[largeur]){
+    change_value(grid,x,y);
+    change_value(grid,x,y+1);
+    change_value(grid,x,y+2);
+    change_value(grid,x-1,y+3);
+    change_value(grid,x-4,y+3);
+    change_value(grid,x-4,y+1);
+    change_value(grid,x-3,y);
+    change_value(grid,x-2,y);
+    change_value(grid,x-1,y);
+}
 void glidder2(int x, int y,int (*grid)[largeur]){
     change_value(grid,x,y);
     change_value(grid,x+1,y);
@@ -139,7 +155,8 @@ int main(){
     // change_value(screen,6,6);
     // change_value(screen,7,7);
     //glidder(2,2,screen);
-    glidder2(7,3,screen);
+    // glidder2(7,3,screen);
+    lwss(7,2,screen);
     //scramble(screen);
     high_print_scr(screen);
     printf("\n");
