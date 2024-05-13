@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define haut 8
-#define largeur 30
+#define haut 30
+#define largeur 100
+#define blocked 1
 
 void print_scr(int (*array)[largeur]){
     for(int i = 0;i<haut;i++){
@@ -34,18 +35,22 @@ void init_scr(int (*screen)[largeur]){
 
 int voisin(int (*screen)[largeur],int x,int y){
     int count = 0;
-    //int limy = 1;
-    //int limx = 1;
     for(int i = y-1;i<=y+1;i++){
         for(int j = x-1;j<=x+1;j++){
-            int nx = j;
-            int ny = i;
-            if(x >=largeur){nx = 0;ny = ny;} // teleporte Droite -> Gauche Work
-            else if(x<0){nx = largeur-1;ny = ny;}; // teleporte Gauche -> Droite  Work Mais descent 
-            if(y >=haut-1){ny = 0;} // teleporte Bas -> Haut
-            else if(y<0){ny = haut-1;}; // teleporte Haut -> Bas
-            if(screen[ny][nx] == 1){count++;}; // Incrémente valeur de la grile est vivante
-            //printf("i: %d , j : %d \n",i,j);
+            if(blocked == 1){
+                if(i>=0 && j>=0 && i<=haut-1 && j<=largeur-1){
+                    if(screen[i][j] == 1){count++;};
+                }     
+            }else{
+                int nx = j;
+                int ny = i;
+                if(x >=largeur){nx = 0;ny = ny;} // teleporte Droite -> Gauche Work
+                else if(x<0){nx = largeur-1;ny = ny;}; // teleporte Gauche -> Droite  Work Mais descent 
+                if(y >=haut-1){ny = 0;} // teleporte Bas -> Haut
+                else if(y<0){ny = haut-1;}; // teleporte Haut -> Bas
+                if(screen[ny][nx] == 1){count++;}; // Incrémente valeur de la cellule est vivante
+                //printf("i: %d , j : %d \n",i,j);
+            }
         }
     }
     return count - screen[y][x] ;
@@ -93,7 +98,6 @@ void scramble(int (*grid)[largeur]){
         }
     }
 }
-
 void apply_rule(int (*grid)[largeur],int (*grid_voisin)[largeur]){
     for(int i = 0;i<haut;i++){
         for(int j = 0;j<largeur;j++){
@@ -164,17 +168,10 @@ int main(){
     int screen[haut][largeur];
     init_scr(screen);
 
-    // change_value(screen,10,4);
-    // change_value(screen,10,5);
-    // change_value(screen,10,6);
-    // change_value(screen,11,6);
-    // change_value(screen,12,5);
-    // change_value(screen,6,6);
-    // change_value(screen,7,7);
     //glidder(2,2,screen);
-    // glidder2(7,3,screen);
-    lwss_reverse(3,2,screen);
-    //scramble(screen);
+    //glidder2(7,3,screen);
+    //lwss_reverse(3,2,screen);
+    scramble(screen);
     high_print_scr(screen);
     printf("\n");
     int grid_voisin[haut][largeur];
@@ -182,7 +179,7 @@ int main(){
     while(1==1){
         init_scr(grid_voisin);
         make_grid_voisin(screen,grid_voisin);
-        print_scr(grid_voisin);
+        //print_scr(grid_voisin);
         apply_rule(screen,grid_voisin);
         high_print_scr(screen);
         getchar();
