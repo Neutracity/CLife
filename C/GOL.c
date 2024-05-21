@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <SDL2/SDL.h>
 
-#define haut 30
-#define largeur 100
+
+#define haut 200
+#define largeur 200
 #define blocked 1
+#define SCREEN_WIDTH   200
+#define SCREEN_HEIGHT  200
+
+
 
 void print_scr(int (*array)[largeur]){
     for(int i = 0;i<haut;i++){
@@ -161,28 +167,115 @@ void glidder2(int x, int y,int (*grid)[largeur]){
     change_value(grid,x+1,y+2);
 }
 
+int setWindowColor(SDL_Renderer *renderer, SDL_Color color)
+{
+    if(SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a) < 0)
+        return -1;
+    if(SDL_RenderClear(renderer) < 0)
+        return -1;
+    return 0;  
+}
+
+void draw_pix(SDL_Renderer *renderer,int x,int y, SDL_Color color){
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawPoint(renderer, x, y);
+}
+
+void print_to_screen(SDL_Renderer *renderer,int (*grid)[largeur],SDL_Color vivant,SDL_Color mort){
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, mort.r, mort.g, mort.b, mort.a);
+    SDL_SetRenderDrawColor(renderer, vivant.r, vivant.g, vivant.b, vivant.a);
+    for(int i = 0;i<haut;i++){
+        for(int j = 0;j<largeur;j++){
+            if(grid[i][j]==1){SDL_RenderDrawPoint(renderer, j, i);}
+        }
+    }
+    SDL_RenderPresent(renderer);
+}
+
+
 int main(){
+    //Setup SDL2
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
+    int statut = EXIT_FAILURE;
+    SDL_Color orange = {255, 127, 40, 255};
+    SDL_Color noir = {0, 0, 0, 255};
+    SDL_Color blanc = {255, 255, 255, 255};
+    /* Initialisation, création de la fenêtre et du renderer. */
+    if(0 != SDL_Init(SDL_INIT_VIDEO))
+    {
+        fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
+        goto Quit;
+    }
+    window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if(NULL == window)
+    {
+        fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
+        goto Quit;
+    }
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(NULL == renderer)
+    {
+        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
+        goto Quit;
+    }
+    
+    /* C’est à partir de maintenant que ça se passe. */
+    if(0 != SDL_SetRenderDrawColor(renderer, noir.r, noir.g, noir.b, noir.a))
+    {
+        fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
+        goto Quit;
+    }
+    
+    if(0 != SDL_RenderClear(renderer))
+    {
+        fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
+        goto Quit;
+    }
+    
+    SDL_RenderPresent(renderer);
+    
+    
+    // GOL
     time_t seconds;
     time(&seconds);
     srand((unsigned int) seconds);
     int screen[haut][largeur];
     init_scr(screen);
-
+    
     //glidder(2,2,screen);
     //glidder2(7,3,screen);
     //lwss_reverse(3,2,screen);
     scramble(screen);
-    high_print_scr(screen);
-    printf("\n");
+    //high_print_scr(screen);
+    //printf("\n");
     int grid_voisin[haut][largeur];
     init_scr(grid_voisin);
-    while(1==1){
-        init_scr(grid_voisin);
-        make_grid_voisin(screen,grid_voisin);
-        //print_scr(grid_voisin);
-        apply_rule(screen,grid_voisin);
-        high_print_scr(screen);
-        getchar();
-    }
-    return 0;
+    SDL_Event event;
+    SDL_bool quit = SDL_FALSE;
+    while(!quit){
+        if(event.type == SDL_QUIT){
+            quit = SDL_TRUE; 
+        }else{
+            init_scr(grid_voisin);
+            make_grid_voisin(screen,grid_voisin);
+            apply_rule(screen,grid_voisin);
+            SDL_SetRenderDrawColor(renderer, noir.r, noir.g, noir.b, noir.a);
+            SDL_RenderClear(renderer);
+            print_to_screen(renderer,screen,blanc,noir);
+            SDL_WaitEvent(&event);
+        }
+
+    };
+    statut = EXIT_SUCCESS;
+
+Quit:
+    if(NULL != renderer)
+        SDL_DestroyRenderer(renderer);
+    if(NULL != window)
+        SDL_DestroyWindow(window);
+    SDL_Quit();
+    return statut;
 }

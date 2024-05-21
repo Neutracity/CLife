@@ -7,3 +7,6 @@ C/build/Debug/outDebug
 C/build/Debug/GOL.o
 C/test.sh
 C/GOL.sh
+C/.vscode/c_cpp_properties.json
+C/.vscode/launch.json
+C/.vscode/settings.json
