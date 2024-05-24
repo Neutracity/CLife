@@ -4,11 +4,11 @@
 #include <SDL2/SDL.h>
 
 
-#define haut 200
-#define largeur 200
+#define haut 400
+#define largeur 400
 #define blocked 1
-#define SCREEN_WIDTH   200
-#define SCREEN_HEIGHT  200
+#define SCREEN_WIDTH   haut
+#define SCREEN_HEIGHT  largeur
 
 
 
@@ -246,9 +246,9 @@ int main(){
     init_scr(screen);
     
     //glidder(2,2,screen);
-    //glidder2(7,3,screen);
+    glidder2(300,300,screen);
     //lwss_reverse(3,2,screen);
-    scramble(screen);
+    //scramble(screen);
     //high_print_scr(screen);
     //printf("\n");
     int grid_voisin[haut][largeur];
