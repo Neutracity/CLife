@@ -265,7 +265,7 @@ int main(){
     SDL_Event event;
     SDL_bool quit = SDL_FALSE;
     while(!quit){
-        SDL_event event;
+        SDL_Event event;
         if (SDL_PollEvent(&event)){
             if(event.type == SDL_QUIT){
                 quit = SDL_TRUE; 
