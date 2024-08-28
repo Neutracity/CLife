@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
-
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #define pixel_size 4
 #define blocked 1
-#define SCREEN_WIDTH   800
-#define SCREEN_HEIGHT  800
-#define haut (SCREEN_HEIGHT / pixel_size)
-#define largeur (SCREEN_WIDTH / pixel_size)
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+/*#define haut (SCREEN_HEIGHT / pixel_size)*/
+/*#define largeur (SCREEN_WIDTH / pixel_size)*/
+const int haut = 400 ;
+const int largeur = 400;
+
 
 void print_scr(int (*array)[largeur]){
     for(int i = 0;i<haut;i++){
@@ -204,7 +208,34 @@ void print_to_screen(SDL_Renderer *renderer,int (*grid)[largeur],SDL_Color vivan
 }
 
 
-int main(){
+int main(int argc, char * argv[]){
+    if(argc < 2 || strcmp(argv[1], "-t") == 0){
+      printf("Terminal ui \n"); 
+      struct winsize w;
+      ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+      time_t seconds;
+      time(&seconds);
+      srand((unsigned int) seconds);
+      /*haut = w.ws_row ;*/
+      /*largeur = w.ws_col ; */
+      int screen[haut][largeur];
+      init_scr(screen);
+      //glidder(2,2,screen);
+      //glidder2(300,300,screen);
+      //lwss_reverse(3,2,screen);
+      scramble(screen);
+      //high_print_scr(screen);
+      //printf("\n");
+      int grid_voisin[haut][largeur];
+      init_scr(grid_voisin);
+      while(1==1){
+        init_scr(grid_voisin);
+        make_grid_voisin(screen,grid_voisin);
+        apply_rule(screen,grid_voisin);
+        high_print_scr(screen);
+      };
+
+  }else if(strcmp(argv[1], "-g") == 0){ 
     //Setup SDL2
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -212,41 +243,10 @@ int main(){
     //SDL_Color orange = {255, 127, 40, 255};
     SDL_Color noir = {0, 0, 0, 255};
     SDL_Color blanc = {255, 255, 255, 255};
-    /* Initialisation, création de la fenêtre et du renderer. */
-    if(0 != SDL_Init(SDL_INIT_VIDEO))
-    {
-        fprintf(stderr, "Erreur SDL_Init : %s", SDL_GetError());
-        goto Quit;
-    }
     window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if(NULL == window)
-    {
-        fprintf(stderr, "Erreur SDL_CreateWindow : %s", SDL_GetError());
-        goto Quit;
-    }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(NULL == renderer)
-    {
-        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
-        goto Quit;
-    }
-    
-    /* C’est à partir de maintenant que ça se passe. */
-    if(0 != SDL_SetRenderDrawColor(renderer, noir.r, noir.g, noir.b, noir.a))
-    {
-        fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
-        goto Quit;
-    }
-    
-    if(0 != SDL_RenderClear(renderer))
-    {
-        fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
-        goto Quit;
-    }
-    
     SDL_RenderPresent(renderer);
-    
     
     // GOL
     time_t seconds;
@@ -283,12 +283,9 @@ int main(){
 
     };
     statut = EXIT_SUCCESS;
+  
+    
+    
 
-Quit:
-    if(NULL != renderer)
-        SDL_DestroyRenderer(renderer);
-    if(NULL != window)
-        SDL_DestroyWindow(window);
-    SDL_Quit();
-    return statut;
+    }
 }
