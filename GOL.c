@@ -11,8 +11,8 @@
 #define SCREEN_HEIGHT 800
 /*#define haut (SCREEN_HEIGHT / pixel_size)*/
 /*#define largeur (SCREEN_WIDTH / pixel_size)*/
-const int haut = 400 ;
-const int largeur = 400;
+int haut = 400;
+int largeur = 400;
 
 
 void print_scr(int (*array)[largeur]){
@@ -216,8 +216,8 @@ int main(int argc, char * argv[]){
       time_t seconds;
       time(&seconds);
       srand((unsigned int) seconds);
-      /*haut = w.ws_row ;*/
-      /*largeur = w.ws_col ; */
+      haut = w.ws_row -1 ;
+      largeur = w.ws_col ; 
       int screen[haut][largeur];
       init_scr(screen);
       //glidder(2,2,screen);
@@ -229,6 +229,9 @@ int main(int argc, char * argv[]){
       int grid_voisin[haut][largeur];
       init_scr(grid_voisin);
       while(1==1){
+        clock_t start_time = clock();
+        while (clock() < start_time + 10000);
+        system("clear");
         init_scr(grid_voisin);
         make_grid_voisin(screen,grid_voisin);
         apply_rule(screen,grid_voisin);
